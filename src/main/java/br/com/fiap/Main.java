@@ -10,6 +10,7 @@ import jakarta.persistence.Persistence;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -38,20 +39,35 @@ public class Main {
 
         while (cont < qtd) {
             var item = new ItemEstocado();
+            var itemDep2 = new ItemEstocado();
+
+
             item.setDeposito( dep1 )
                     .setProduto( p1 )
                     .setEntrada( LocalDateTime.now() )
                     .setNumeroDeSerie( cont + "NR" + qtd + "-" + p1.getId() + "-" + dep1.getId() );
 
+
+            itemDep2.setDeposito( dep2 )
+                    .setProduto( p1 )
+                    .setEntrada( LocalDateTime.now() )
+                    .setNumeroDeSerie( cont + "NR" + qtd + "-" + p1.getId() + "-" + dep2.getId() );
+
             manager.persist( item );
+            manager.persist( itemDep2 );
             cont++;
         }
 
-
         manager.getTransaction().commit();
-        System.out.println( dep1 );
-        System.out.println( dep2 );
-        System.out.println( p1 );
+
+
+        var jpql = "FROM ItemEstocado i join  fetch i.deposito  where i.deposito.id = 2L";
+
+        List list = manager.createQuery( jpql ).getResultList();
+
+        list.forEach( System.out::println );
+
+
         manager.close();
         factory.close();
     }
